@@ -36,7 +36,7 @@ class TestUrbanRoutes:
 
 
     # Fill in phone number
-    def test_fill_in_phone_numer(self):
+    def test_fill_in_phone_number(self):
         self.methods_page.fill_in_phone_number()
 
 
