@@ -1,69 +1,88 @@
-from methods import UrbanRoutesPage
-from locators import Localizadores
 import data
+import locators
+from methods import UrbanRoutesPage
 from selenium import webdriver
-
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 
 class TestUrbanRoutes:
 
     driver = None
 
+
     @classmethod
     def setup_class(cls):
         # no lo modifiques, ya que necesitamos un registro adicional habilitado para recuperar el código de confirmación del teléfono
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_experimental_option("perfLoggingPrefs", {'enableNetwork': True, 'enablePage': True})
-        chrome_options.set_capability("goog:loggingPrefs", {'performance': 'ALL'})
-        cls.driver = webdriver.Chrome(options=chrome_options)
-        cls.driver.get(data.urban_routes_url)
-        cls.methods_page = UrbanRoutesPage (cls.driver)
-        cls.locators_page = Localizadores
+        from selenium.webdriver import DesiredCapabilities
+        capabilities = DesiredCapabilities.CHROME
+        capabilities["goog:loggingPrefs"] = {'performance': 'ALL'}
+        cls.driver = webdriver.Chrome()
+        cls.driver.maximize_window()
+        cls.driver.implicitly_wait(5)
 
-    #Set route
+
     def test_set_route(self):
-        from_address = data.address_from
-        to_address = data.address_to
-        self.methods_page.set_from(from_address)
-        self.methods_page.set_to(to_address)
-        assert self.methods_page.get_from() == data.address_from
-        assert self.methods_page.get_to() == data.address_to
+        self.driver.get(data.urban_routes_url)
+        routes_page = UrbanRoutesPage(self.driver)
+        self.driver.implicitly_wait(5)
+        address_from = data.address_from
+        address_to = data.address_to
+        routes_page.set_route(address_from, address_to)
+        assert routes_page.get_from() == address_from
+        assert routes_page.get_to() == address_to
+
+    def test_select_comfort(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        routes_page.select_ride_comfort()
+        assert routes_page.active_comfort() == True
 
 
-    # Select Comfort option
-    def test_select_comfort_option(self):
-        self.methods_page.select_comfort_option()
+    def test_phone_number_correct(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        number_phone = data.phone_number
+        routes_page.add_number_phone_field(number_phone)
+        assert routes_page.write_phone_number_correct() == number_phone
 
 
-
-    # Fill in phone number
-    def test_fill_in_phone_number(self):
-        self.methods_page.fill_in_phone_number()
-
-
-    # Add credit card
-    def test_add_credit_card(self):
-        self.methods_page.add_credit_card()
-
-
-    # Write a message to the driver
-    def test_write_a_message(self):
-        self.methods_page.write_a_message()
-
-
-    # Ask for blanket and kleenex
-    def test_asf_for_blanket_and_kleenex(self):
-        self.methods_page.ask_for_blanket_and_kleenex()
-
-
-    # Add icecream
-    def test_add_icecream(self):
-        self.methods_page.add_two_icecream()
+    def test_add_card(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        card_number, card_code = data.card_number, data.card_code
+        routes_page.add_card_payment_method(card_number, card_code)
+        assert routes_page.correct_add_card() == card_number
 
 
 
-    # Book taxi
-    def test_book_taxi(self):
-        self.methods_page.book_taxi()
+    def test_message_for_driver(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        message_for_driver = data.message_for_driver
+        routes_page.send_message_for_driver(message_for_driver)
+        assert routes_page.get_message_for_driver() == message_for_driver
+
+
+    def test_button_blanket_and_tissue(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        routes_page.click_select_blanket_tissue()
+        assert routes_page.get_blanket_tissue() == True
+
+
+    def test_add_two_ice_creams(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        routes_page.add_two_ice_creams()
+        assert routes_page.set_two_ice_creams() == "2"
+
+
+    def test_select_search_taxi_button(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        self.driver.implicitly_wait(5)
+        routes_page.click_search_taxi_button()
+        assert routes_page.open_search_taxi_screen() == True
+
+
+    def test_driver_information_screen(self):
+        routes_page = UrbanRoutesPage(self.driver)
+        assert routes_page.open_information_driver_screen() == True
+
 
 
     @classmethod

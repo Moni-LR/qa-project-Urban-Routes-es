@@ -1,9 +1,10 @@
-from locators import Localizadores
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import data
-from retrieve import retrieve_phone_code
+from locators import Localizadores
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
+import retrieve
+
+
 
 
 class UrbanRoutesPage:
@@ -11,13 +12,13 @@ class UrbanRoutesPage:
         self.driver = driver
         self.locators = Localizadores()
 
-    #Set route
-    def set_from(self, from_address):
-         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located(self.locators.from_field))
-         self.driver.find_element(*self.locators.from_field).send_keys(from_address)
 
-    def set_to(self, to_address):
-        self.driver.find_element(*self.locators.to_field).send_keys(to_address)
+#Set route
+    def set_from(self, address_from):
+        self.driver.find_element(*self.locators.from_field).send_keys(data.address_from)
+
+    def set_to(self, address_to):
+        self.driver.find_element(*self.locators.to_field).send_keys(data.address_to)
 
     def get_from(self):
         return self.driver.find_element(*self.locators.from_field).get_property('value')
@@ -25,129 +26,143 @@ class UrbanRoutesPage:
     def get_to(self):
         return self.driver.find_element(*self.locators.to_field).get_property('value')
 
-    def set_route(self, from_address, to_address):
-        self.set_from(from_address)
-        self.set_to(to_address)
+    def set_route(self, address_from, address_to):
+        self.set_from(address_from)
+        self.set_to(address_to)
 
 
-    #Select Comfort option
-    def click_order_taxi_button(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.order_taxi_button))
-        self.driver.find_element(*self.locators.order_taxi_button).click()
+#Select comfort option
+    def click_button_get_taxi(self):
+        self.driver.find_element(*self.locators.button_get_taxi).click()
 
-    def click_comfort_option(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.comfort_option))
-        self.driver.find_element(*self.locators.comfort_option).click()
+    def click_ride_comfort(self):
+        self.driver.find_element(*self.locators.comfort_button).click()
 
-    def select_comfort_option(self):
-        self.click_order_taxi_button()
-        self.click_comfort_option()
+    def active_comfort(self):
+        return self.driver.find_element(*self.locators.blanket_and_tissue_elements_comfort).is_displayed()
+
+    def select_ride_comfort(self):
+        self.click_button_get_taxi()
+        self.click_ride_comfort()
 
 
 
-    #Fill in phone number
-    def click_phone_number_option(self):
-        WebDriverWait(self.driver,5).until(EC.presence_of_element_located(self.locators.phone_number_option))
-        self.driver.find_element(*self.locators.phone_number_option).click()
+#Add phone number
+    def click_phone_field(self):
+        self.driver.find_element(*self.locators.number_field).click()
 
-    def add_phone_number(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located(self.locators.phone_number_field))
-        self.driver.find_element(*self.locators.phone_number_field).send_keys(data.phone_number)
+    def click_add_phone_field(self):
+        self.driver.find_element(*self.locators.click_number_input).click()
+
+    def add_phone_number(self, number):
+        self.driver.find_element(*self.locators.add_phone).send_keys(number)
 
     def click_next_button(self):
-        self.driver.find_element(*self.locators.next_button_phone_number).click()
+        self.driver.find_element(*self.locators.next_button).click()
 
-    def add_sms_code(self):
-        WebDriverWait(self.driver,10).until(EC.presence_of_element_located(self.locators.sms_code_field))
-        code = retrieve_phone_code(driver=self.driver)
-        self.driver.find_element(*self.locators.sms_code_field).send_keys(code)
+    def add_code_field(self):
+        self.driver.find_element(*self.locators.add_code).send_keys(Retrieve.retrieve_phone_code(self.driver))
 
-    def click_confirm_button(self):
-        self.driver.find_element(*self.locators.confirm_button).click()
+    def click_button_confirm(self):
+        self.driver.find_element(*self.locators.button_confirm).click()
 
-    def fill_in_phone_number(self):
-        self.click_phone_number_option()
-        self.add_phone_number()
+    def write_phone_number_correct(self):
+        return self.driver.find_element(*self.locators.number_text).text
+
+    def add_number_phone_field(self, number):
+        self.click_phone_field()
+        self.click_add_phone_field()
+        self.add_phone_number(number)
         self.click_next_button()
-        self.add_sms_code()
-        self.click_confirm_button()
+        self.add_code_field()
+        self.click_button_confirm()
 
 
-    #Add credit card
-    def click_payment_method_option(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.payment_method_option))
-        self.driver.find_element(*self.locators.payment_method_option).click()
+#Add payment method
+    def click_payment_method_field(self):
+        self.driver.find_element(*self.locators.payment_method_field).click()
 
-    def add_payment_method_button(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.add_payment_method_button))
-        self.driver.find_element(*self.locators.add_payment_method_button).click()
+    def click_plus_button_card(self):
+        self.driver.find_element(*self.locators.button_plus_card).click()
 
-    def insert_card_number(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located(self.locators.card_number_field))
-        self.driver.find_element(*self.locators.card_number_field).send_keys(data.card_number)
+    def add_card_number(self, number_card):
+        self.driver.find_element(*self.locators.add_number_card).send_keys(data.card_number)
 
-    def insert_card_code(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located(self.locators.code_card_field))
-        self.driver.find_element(*self.locators.code_card_field).send_keys(data.card_code)
+    def add_card_code(self, code_card):
+        self.driver.find_element(*self.locators.add_code_card).send_keys(data.card_code)
 
-    def tab_empty_rectangle(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.empty_rectangle))
-        self.driver.find_element(*self.locators.empty_rectangle).click()
+    def click_another_place_screen(self):
+        self.driver.find_element(*self.locators.rectangle_colors).click()
 
-    def click_add_button(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.add_button))
-        self.driver.find_element(*self.locators.add_button).click()
+    def click_add_card_button(self):
+        self.driver.find_element(*self.locators.button_add_card_code).click()
 
-    def close_window(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.close_window_button))
-        self.driver.find_element(*self.locators.close_window_button).click()
+    def click_close_payment_method_screen(self):
+        self.driver.find_element(*self.locators.button_close_payment_method).click()
 
-    def add_credit_card(self):
-        self.click_payment_method_option()
-        self.add_payment_method_button()
-        self.insert_card_number()
-        self.insert_card_code()
-        self.tab_empty_rectangle()
-        self.click_add_button()
-        self.close_window()
+    def correct_add_card(self):
+        return self.driver.find_element(*self.locators.add_number_card).get_property('value')
 
+    def correct_text_add_card(self):
+        return self.driver.find_element(*self.locators.text_card).text
 
-    #Write a message to the driver
-    def add_message(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located(self.locators.driver_message_button))
-        self.driver.find_element(*self.locators.driver_message_button).send_keys(data.message_for_driver)
-
-    def write_a_message(self):
-        self.add_message()
+    def add_card_payment_method(self, number_card, code_card):
+        self.click_payment_method_field()
+        self.click_plus_button_card()
+        self.add_card_number(number_card)
+        self.add_card_code(code_card)
+        self.correct_add_card()
+        self.click_another_place_screen()
+        self.click_add_card_button()
+        self.click_close_payment_method_screen()
 
 
-    #Ask for blanket and kleenex
-    def ask_for_blanket_kleenex(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.ask_blanket_and_kleenex_slider))
-        self.driver.find_element(*self.locators.ask_blanket_and_kleenex_slider).click()
 
-    def ask_for_blanket_and_kleenex(self):
-        self.ask_for_blanket_kleenex()
+    def click_message_driver(self):
+        self.driver.find_element(*self.locators.select_message_driver).click()
 
+    def write_message_driver(self, message):
+        self.driver.find_element(*self.locators.message_driver_field).send_keys(message)
 
-    #Add icecream
-    def add_icecream(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.add_icecream_counter))
-        self.driver.find_element(*self.locators.add_icecream_counter).click()
+    def get_message_for_driver(self):
+        return self.driver.find_element(*self.locators.message_driver_field).get_property('value')
 
-    def add_more_icecream(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.add_icecream_counter))
-        self.driver.find_element(*self.locators.add_icecream_counter).click()
-
-    def add_two_icecream(self):
-        self.add_icecream()
-        self.add_more_icecream()
+    def send_message_for_driver(self, message):
+        self.click_message_driver()
+        self.write_message_driver(message)
 
 
-    #Book taxi
-    def click_book_taxi(self):
-        WebDriverWait(self.driver, 5).until(EC.presence_of_element_located(self.locators.book_button))
-        self.driver.find_element(*self.locators.book_button).click()
 
-    def book_taxi(self):
-        self.click_book_taxi()
+
+    def click_select_blanket_tissue(self):
+        self.driver.find_element(*self.locators.select_blanket_and_tissue).click()
+
+    def get_blanket_tissue(self):
+        return self.driver.find_element(*self.locators.confirm_blanket_and_tissue).is_selected()
+
+
+    def click_add_first_ice_cream(self):
+        self.driver.find_element(*self.locators.add_ice_cream).click()
+
+    def click_add_second_ice_cream(self):
+        self.driver.find_element(*self.locators.add_ice_cream).click()
+
+    def set_two_ice_creams(self):
+        return self.driver.find_element(*self.locators.select_two_ice_creams).text
+
+    def add_two_ice_creams(self):
+        self.click_add_first_ice_cream()
+        self.click_add_second_ice_cream()
+
+
+
+
+    def click_search_taxi_button(self):
+        self.driver.find_element(*self.locators.search_taxi_button).click()
+
+    def open_search_taxi_screen(self):
+        return self.driver.find_element(*self.locators.search_car_screen).is_displayed()
+
+    def open_information_driver_screen(self):
+        WebDriverWait(self.driver, 40).until(expected_conditions.visibility_of_element_located(self.locators.img_driver))
+        return self.driver.find_element(*self.locators.img_driver).is_displayed()
